@@ -3,6 +3,14 @@ AI Data Center Financial & Power Procurement Modeling System (AID_FM)
 Main Application Entry Point with Password Authentication powered strictly by Streamlit Secrets Management.
 """
 
+import os
+import sys
+
+# Ensure root directory is on sys.path for Streamlit Community Cloud (Linux)
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 import streamlit as st
 import pandas as pd
 
