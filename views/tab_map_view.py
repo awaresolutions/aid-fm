@@ -1,6 +1,7 @@
 """
 Tab 3: Interactive US Map of Top 50 Top Secret (TS/SCI) Compliant Data Center Sites.
 Renders geospatial plot, site filtering, utility rates, and site selection.
+Compatible with Plotly 5.x and Plotly 6.x (scatter_mapbox / scatter_map).
 Enhanced contrast edition.
 """
 
@@ -52,32 +53,65 @@ def render_tab_map_view():
 
     st.markdown(f"**Found {len(filtered_df)} Locations** matching search criteria.")
 
-    # Render Scatter Mapbox plot with Positron (light mode)
-    fig_map = px.scatter_mapbox(
-        filtered_df,
-        lat="lat",
-        lon="lon",
-        hover_name="name",
-        hover_data={
-            "city": True,
-            "state": True,
-            "utility": True,
-            "rate_code": True,
-            "median_rate_kwh": ":$.3f",
-            "scif_rating": True,
-            "grid_capacity_mw": ":,d MW",
-            "lat": False,
-            "lon": False
-        },
-        color="median_rate_kwh",
-        size="grid_capacity_mw",
-        color_continuous_scale="Viridis_r",
-        size_max=22,
-        zoom=3.5,
-        center={"lat": 38.5, "lon": -96.0},
-        mapbox_style="carto-positron",
-        title="Top Secret AI Data Center Candidate Sites (Color = Rate $/kWh, Size = Grid MW)"
-    )
+    hover_dict = {
+        "city": True,
+        "state": True,
+        "utility": True,
+        "rate_code": True,
+        "median_rate_kwh": ":$.3f",
+        "scif_rating": True,
+        "grid_capacity_mw": ":,d MW",
+        "lat": False,
+        "lon": False
+    }
+
+    # Plotly 5.x vs 6.x map compatibility check
+    if hasattr(px, "scatter_mapbox"):
+        fig_map = px.scatter_mapbox(
+            filtered_df,
+            lat="lat",
+            lon="lon",
+            hover_name="name",
+            hover_data=hover_dict,
+            color="median_rate_kwh",
+            size="grid_capacity_mw",
+            color_continuous_scale="Viridis_r",
+            size_max=22,
+            zoom=3.5,
+            center={"lat": 38.5, "lon": -96.0},
+            mapbox_style="carto-positron",
+            title="Top Secret AI Data Center Candidate Sites (Color = Rate $/kWh, Size = Grid MW)"
+        )
+    elif hasattr(px, "scatter_map"):
+        fig_map = px.scatter_map(
+            filtered_df,
+            lat="lat",
+            lon="lon",
+            hover_name="name",
+            hover_data=hover_dict,
+            color="median_rate_kwh",
+            size="grid_capacity_mw",
+            color_continuous_scale="Viridis_r",
+            size_max=22,
+            zoom=3.5,
+            center={"lat": 38.5, "lon": -96.0},
+            map_style="carto-positron",
+            title="Top Secret AI Data Center Candidate Sites (Color = Rate $/kWh, Size = Grid MW)"
+        )
+    else:
+        fig_map = px.scatter_geo(
+            filtered_df,
+            lat="lat",
+            lon="lon",
+            hover_name="name",
+            hover_data=hover_dict,
+            color="median_rate_kwh",
+            size="grid_capacity_mw",
+            color_continuous_scale="Viridis_r",
+            size_max=22,
+            scope="usa",
+            title="Top Secret AI Data Center Candidate Sites (Color = Rate $/kWh, Size = Grid MW)"
+        )
 
     fig_map.update_layout(
         height=550,
